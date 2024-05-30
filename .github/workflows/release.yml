@@ -1,0 +1,53 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # This triggers the workflow when you push a tag that looks like a version number.
+  workflow_dispatch: # This allows the workflow to be triggered manually.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install # If you have any dependencies to install
+
+    - name: Create zip file
+      run: |
+        mkdir -p release
+        zip -r release/great-jalapeno-modpack.zip . -x '*.git*' 'release/*' '.github/*'
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: release/great-jalapeno-modpack.zip
+        asset_name: great-jalapeno-modpack.zip
+        asset_content_type: application/zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            Release notes for ${{ github.ref }}
+          draft: false
+          prerelease: false
