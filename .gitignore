@@ -1,4 +1,3 @@
-options.txt
 usercache.json
 crash-reports/
 saves/
@@ -7,3 +6,4 @@ reports/
 logs/
 cache/
 crafttweaker.log
+*.zip
